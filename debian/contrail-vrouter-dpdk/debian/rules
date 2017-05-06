@@ -5,14 +5,16 @@ export INSTALL_ROOT=$(shell pwd)
 SB_TOP := $(shell pwd | sed -re "s/(.*)\/build\/packages(.*)/\1/")
 export LD_LIBRARY_PATH := $(LD_LIBRARY_PATH):$(INSTALL_ROOT)/usr/lib
 
+USER ?= root
+
+# override with debuild --set-envvar CONTRAIL_BUILD_JOBS=8
+CONTRAIL_BUILD_JOBS ?= no
+
 %:
 	dh $@
 
-override_dh_auto_clean:
-	(cd ${SB_TOP}; scons -c --opt=production vrouter/dpdk)
-
 override_dh_auto_build:
-	(cd ${SB_TOP}; scons --opt=production vrouter/dpdk)
+	(cd ${SB_TOP}; USER=$(USER) CONTRAIL_BUILD_JOBS=$(CONTRAIL_BUILD_JOBS) scons --opt=production vrouter/dpdk)
 
 override_dh_auto_install:
 	mkdir -p ${INSTALL_ROOT}/usr/bin
