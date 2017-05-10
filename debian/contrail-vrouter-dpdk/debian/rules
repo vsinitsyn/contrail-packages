@@ -10,11 +10,14 @@ USER ?= root
 # override with debuild --set-envvar CONTRAIL_BUILD_JOBS=8
 CONTRAIL_BUILD_JOBS ?= no
 
+# override with debuild --set-envvar KERNEL_VER=4.9.0-1
+KERNEL_VER ?= $(shell uname -r)
+
 %:
 	dh $@
 
 override_dh_auto_build:
-	(cd ${SB_TOP}; USER=$(USER) CONTRAIL_BUILD_JOBS=$(CONTRAIL_BUILD_JOBS) scons --opt=production vrouter/dpdk)
+	(cd ${SB_TOP}; USER=$(USER) CONTRAIL_BUILD_JOBS=$(CONTRAIL_BUILD_JOBS) scons --opt=production --kernel-dir=/lib/modules/$(KERNEL_VER) vrouter/dpdk)
 
 override_dh_auto_install:
 	mkdir -p ${INSTALL_ROOT}/usr/bin
